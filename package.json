@@ -1,6 +1,6 @@
 {
   "name": "monitored-constructs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Monitored AWS constructs",
   "main": "build/index.js",
   "types": "build/index.d.ts",
