@@ -1,0 +1,38 @@
+{
+  "name": "monitored-constructs",
+  "version": "0.0.0",
+  "description": "Monitored AWS constructs",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": "16.x",
+    "npm": ">7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slavovojacek/monitored-constructs.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Slavo Vojacek",
+    "email": "public@slavovojacek.com"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slavovojacek/monitored-constructs/issues"
+  },
+  "homepage": "https://github.com/slavovojacek/monitored-constructs#readme",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write {.github,lib}/** *.json",
+    "format:check": "prettier --check {.github,lib}/** *.json"
+  },
+  "devDependencies": {
+    "@slavovojacek/prettier-config": "0.0.1",
+    "@slavovojacek/tsconfig": "0.0.3"
+  },
+  "prettier": "@slavovojacek/prettier-config"
+}
