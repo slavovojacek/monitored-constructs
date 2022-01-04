@@ -8,14 +8,15 @@ import { MonitoredConstruct, type MonitoredConstructProps } from '../aws/monitor
  *
  * @public
  */
-export type QueueProps = MonitoredConstructProps & {
-  /**
-   * AWS SQS queue properties for the underlying construct.
-   *
-   * @see {@link aws_sqs.QueueProps}
-   */
-  queue: aws_sqs.QueueProps;
-};
+export type QueueProps = MonitoredConstructProps &
+  Partial<{
+    /**
+     * AWS SQS queue properties for the underlying construct.
+     *
+     * @see {@link aws_sqs.QueueProps}
+     */
+    queue: aws_sqs.QueueProps;
+  }>;
 
 export class Queue extends MonitoredConstruct {
   /**
