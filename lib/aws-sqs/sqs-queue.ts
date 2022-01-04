@@ -4,19 +4,11 @@ import { Construct } from 'constructs';
 import { MonitoredConstruct, type MonitoredConstructProps } from '../aws/monitoredConstruct';
 
 /**
- * Properties used to create the construct.
+ * {@link aws_sqs.QueueProps} + {@link MonitoredConstructProps}.
  *
  * @public
  */
-export type QueueProps = MonitoredConstructProps &
-  Partial<{
-    /**
-     * AWS SQS queue properties for the underlying construct.
-     *
-     * @see {@link aws_sqs.QueueProps}
-     */
-    queue: aws_sqs.QueueProps;
-  }>;
+export type QueueProps = MonitoredConstructProps & aws_sqs.QueueProps;
 
 export class Queue extends MonitoredConstruct {
   /**
@@ -32,11 +24,11 @@ export class Queue extends MonitoredConstruct {
    * @param id string
    * @param props {@link QueueProps}
    */
-  constructor(scope: Construct, id: string, props?: QueueProps) {
-    super(scope, id, props);
+  constructor(scope: Construct, id: string, { alarms, ...rest }: QueueProps) {
+    super(scope, id, { alarms });
 
     // 👇 Create the queue
-    this.queue = new aws_sqs.Queue(this, 'queue', props?.queue);
+    this.queue = new aws_sqs.Queue(this, 'queue', rest);
 
     // 🚨 Configure alarms and alarm actions for the queue
     this.configureAlarms(this.queue);

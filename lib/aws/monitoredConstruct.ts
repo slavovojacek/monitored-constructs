@@ -39,10 +39,10 @@ export class MonitoredConstruct extends Construct {
    * @param id string
    * @param props {@link MonitoredConstructProps}
    */
-  constructor(app: Construct, id: string, props?: MonitoredConstructProps) {
+  constructor(app: Construct, id: string, { alarms = {} }: MonitoredConstructProps) {
     super(app, id);
 
-    this.alarms = props?.alarms ?? {};
+    this.alarms = alarms;
   }
 
   configureAlarms = (resource: ResourceWithMetric) => {
