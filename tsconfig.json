@@ -1,7 +1,8 @@
 {
   "extends": "@slavovojacek/tsconfig",
   "compilerOptions": {
-    "outDir": "./build"
+    "outDir": "./build",
+    "exactOptionalPropertyTypes": false
   },
   "include": ["lib"]
 }
