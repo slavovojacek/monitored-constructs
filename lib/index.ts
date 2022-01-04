@@ -1,1 +1,2 @@
-export const version = '0.0.0';
+export * from './aws';
+export * as aws_sqs from './aws-sqs';
