@@ -1,5 +1,35 @@
-import { aws_cloudwatch } from 'aws-cdk-lib';
+import { aws_cloudwatch, Resource } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+
+export const configureAlarms = (resource: ResourceWithMetric, alarms?: Alarms) => {
+  if (!alarms) {
+    return;
+  }
+
+  for (const [metric, { actions, metricOptions, createAlarmOptions }] of Object.entries(alarms)) {
+    const alarm = resource
+      .metric(metric, metricOptions)
+      .createAlarm(resource, `${metric}Alarm`, createAlarmOptions);
+
+    if (!actions) {
+      break;
+    }
+
+    for (const [actionType, action] of Object.entries(actions)) {
+      if (actionType === AlarmActionType.Alarm) {
+        alarm.addAlarmAction(action);
+      }
+
+      if (actionType === AlarmActionType.Ok) {
+        alarm.addOkAction(action);
+      }
+
+      if (actionType === AlarmActionType.InsufficientData) {
+        alarm.addInsufficientDataAction(action);
+      }
+    }
+  }
+};
 
 export enum AlarmActionType {
   Alarm = 'Alarm',
@@ -15,7 +45,7 @@ type Alarm = {
 
 export type Alarms = Record<string, Alarm>;
 
-type ResourceWithMetric = {
+type ResourceWithMetric = Resource & {
   metric(metricName: string, props?: aws_cloudwatch.MetricOptions): aws_cloudwatch.Metric;
 };
 
