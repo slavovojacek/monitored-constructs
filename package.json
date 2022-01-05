@@ -1,7 +1,7 @@
 {
-  "name": "monitored-constructs",
-  "version": "0.0.7",
-  "description": "Monitored AWS constructs",
+  "name": "serverless-constructs",
+  "version": "0.0.0",
+  "description": "Serverless AWS constructs",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
