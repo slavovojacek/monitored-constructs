@@ -11,9 +11,7 @@ export enum RestApiMethod {
 }
 
 export type AddLambdaIntegrationOptions = aws_apigateway.MethodOptions & {
-  schema: {
-    body: any;
-  };
+  body: any;
   path: string;
   method: RestApiMethod;
 };
@@ -40,11 +38,11 @@ export class RestApi extends aws_apigateway.RestApi {
     };
 
     // 👇 Add request models configuration to method options if schema provided
-    if (options.schema.body) {
+    if (options.body) {
       const model = new aws_apigateway.Model(this, 'RequestModel' + lambda.node.id, {
         restApi: this,
         contentType: 'application/json',
-        schema: options.schema.body
+        schema: options.body
       });
 
       Object.assign(defaultMethodOptions, {
