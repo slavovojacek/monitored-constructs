@@ -28,7 +28,17 @@ export class RestApi extends aws_apigateway.RestApi {
     });
   }
 
-  addLambdaIntegration = (lambda: aws_lambda.Function, options: AddLambdaIntegrationOptions) => {
+  /**
+   * Creates a {@link aws_lambda.Function} integration for the underlying {@link aws_apigateway.RestApi}
+   *
+   * @param lambda {@link aws_lambda.Function}
+   * @param options {@link AddLambdaIntegrationOptions}
+   * @returns method {@link aws_apigateway.Method}
+   */
+  addLambdaIntegration = (
+    lambda: aws_lambda.Function,
+    options: AddLambdaIntegrationOptions
+  ): aws_apigateway.Method => {
     // 👇 Create the Lambda <> API GW integration
     const lambdaIntegration = new aws_apigateway.LambdaIntegration(lambda);
 
