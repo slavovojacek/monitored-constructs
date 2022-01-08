@@ -77,7 +77,7 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
   monitorErrors = (
     errorsPerMinute = 0,
     metricOptions?: aws_cloudwatch.MetricOptions,
-    createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
+    createAlarmOptions?: Partial<aws_cloudwatch.CreateAlarmOptions>
   ): aws_cloudwatch.Alarm =>
     this.configureMonitor(
       'Errors',
@@ -104,7 +104,7 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
   monitorThrottles = (
     throttlesPerMinute = 0,
     metricOptions?: aws_cloudwatch.MetricOptions,
-    createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
+    createAlarmOptions?: Partial<aws_cloudwatch.CreateAlarmOptions>
   ): aws_cloudwatch.Alarm =>
     this.configureMonitor(
       'Throttles',
@@ -131,7 +131,7 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
   monitorDuration = (
     timeoutPercent = 80,
     metricOptions?: aws_cloudwatch.MetricOptions,
-    createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
+    createAlarmOptions?: Partial<aws_cloudwatch.CreateAlarmOptions>
   ): aws_cloudwatch.Alarm => {
     if (!this.timeout) {
       throw new Error(`timeout not configured for ${this.functionName}`);
@@ -166,7 +166,7 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
   monitorInvocations = (
     invocationsPerMinute: number,
     metricOptions?: aws_cloudwatch.MetricOptions,
-    createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
+    createAlarmOptions?: Partial<aws_cloudwatch.CreateAlarmOptions>
   ): aws_cloudwatch.Alarm =>
     this.configureMonitor(
       'Invocations',
