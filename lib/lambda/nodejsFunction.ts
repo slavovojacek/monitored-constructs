@@ -71,21 +71,19 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
     errorsPerMinute = 0,
     metricOptions?: aws_cloudwatch.MetricOptions,
     createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
-  ): aws_cloudwatch.Alarm => {
-    const metric = this.metricErrors().with({
-      statistic: 'Sum',
-      period: Duration.minutes(1),
-      ...metricOptions
-    });
-
-    return this.addAlarm('ErrorsAlarm', {
-      alarmDescription: `Over ${errorsPerMinute} errors per minute`,
-      metric,
-      threshold: errorsPerMinute,
-      evaluationPeriods: 3,
-      ...createAlarmOptions
-    });
-  };
+  ): aws_cloudwatch.Alarm =>
+    this.configureMonitor(
+      'Errors',
+      {
+        statistic: 'Sum',
+        ...metricOptions
+      },
+      {
+        threshold: errorsPerMinute,
+        evaluationPeriods: 3,
+        ...createAlarmOptions
+      }
+    );
 
   /**
    * Configures an alarm using the throttles metric.
@@ -100,21 +98,19 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
     throttlesPerMinute = 0,
     metricOptions?: aws_cloudwatch.MetricOptions,
     createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
-  ): aws_cloudwatch.Alarm => {
-    const metric = this.metricThrottles().with({
-      statistic: 'Sum',
-      period: Duration.minutes(1),
-      ...metricOptions
-    });
-
-    return this.addAlarm('ThrottlesAlarm', {
-      alarmDescription: `Over ${throttlesPerMinute} throttles per minute`,
-      metric,
-      threshold: throttlesPerMinute,
-      evaluationPeriods: 3,
-      ...createAlarmOptions
-    });
-  };
+  ): aws_cloudwatch.Alarm =>
+    this.configureMonitor(
+      'Throttles',
+      {
+        statistic: 'Sum',
+        ...metricOptions
+      },
+      {
+        threshold: throttlesPerMinute,
+        evaluationPeriods: 3,
+        ...createAlarmOptions
+      }
+    );
 
   /**
    * Configures an alarm using the duration metric (p99 % of configured timeout).
@@ -136,19 +132,19 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
 
     const threshold = Duration.seconds((timeoutPercent / 100) * this.timeout.toSeconds());
 
-    const metric = this.metricDuration().with({
-      statistic: 'p99',
-      period: Duration.minutes(1),
-      ...metricOptions
-    });
-
-    return this.addAlarm('DurationAlarm', {
-      alarmDescription: `p99 latency >= ${threshold.toSeconds()}s (${timeoutPercent}% of ${this.timeout.toSeconds()})`,
-      metric,
-      threshold: threshold.toMilliseconds(),
-      evaluationPeriods: 3,
-      ...createAlarmOptions
-    });
+    return this.configureMonitor(
+      'Duration',
+      {
+        statistic: 'p99',
+        ...metricOptions
+      },
+      {
+        threshold: threshold.toMilliseconds(),
+        evaluationPeriods: 3,
+        alarmDescription: `p99 latency >= ${threshold.toSeconds()}s (${timeoutPercent}% of ${this.timeout.toSeconds()})`,
+        ...createAlarmOptions
+      }
+    );
   };
 
   /**
@@ -164,32 +160,50 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
     invocationsPerMinute: number,
     metricOptions?: aws_cloudwatch.MetricOptions,
     createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
+  ): aws_cloudwatch.Alarm =>
+    this.configureMonitor(
+      'Invocations',
+      {
+        statistic: 'Sum',
+        ...metricOptions
+      },
+      {
+        threshold: invocationsPerMinute,
+        evaluationPeriods: 3,
+        ...createAlarmOptions
+      }
+    );
+
+  /**
+   * Creates the alarm resource using provided metric name and adds it to the set of alarms configured for this construct.
+   *
+   * @param metricName string
+   * @param metricOptions {@link aws_cloudwatch.MetricOptions}
+   * @param createAlarmOptions {@link aws_cloudwatch.CreateAlarmOptions}
+   * @returns alarm {@link aws_cloudwatch.Alarm}
+   */
+  private configureMonitor = (
+    metricName: string,
+    metricOptions: aws_cloudwatch.MetricOptions,
+    createAlarmOptions: aws_cloudwatch.CreateAlarmOptions
   ): aws_cloudwatch.Alarm => {
-    const metric = this.metricInvocations().with({
-      statistic: 'Sum',
+    const metric = this.metric(metricName).with({
       period: Duration.minutes(1),
       ...metricOptions
     });
 
-    return this.addAlarm('InvocationsAlarm', {
-      alarmDescription: `Over ${invocationsPerMinute} invocations per minute`,
+    const alarmDescription = `Over ${
+      createAlarmOptions.threshold
+    } ${metricName.toLowerCase()} per ${metric.period.toMinutes()} minutes`;
+
+    const alarm = new aws_cloudwatch.Alarm(this, `${metricName}Alarm`, {
+      alarmDescription,
       metric,
-      threshold: invocationsPerMinute,
-      evaluationPeriods: 3,
       ...createAlarmOptions
     });
-  };
 
-  /**
-   * Creates the alarm resource and adds it to the set of alarms configured for this construct.
-   *
-   * @param id string
-   * @param props {@link aws_cloudwatch.AlarmProps}
-   * @returns alarm {@link aws_cloudwatch.Alarm}
-   */
-  private addAlarm = (id: string, props: aws_cloudwatch.AlarmProps): aws_cloudwatch.Alarm => {
-    const alarm = new aws_cloudwatch.Alarm(this, id, props);
     this.alarms.add(alarm);
+
     return alarm;
   };
 
