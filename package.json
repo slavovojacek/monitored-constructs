@@ -1,6 +1,6 @@
 {
   "name": "serverless-constructs",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Serverless AWS constructs",
   "main": "build/index.js",
   "types": "build/index.d.ts",
