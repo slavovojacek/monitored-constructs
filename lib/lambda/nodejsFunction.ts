@@ -11,7 +11,7 @@ export type AddEventSourceMappingWithFilterProps = Omit<
   aws_lambda.EventSourceMappingProps,
   'target'
 > & {
-  filters: Array<Record<string, unknown>>;
+  filters: Array<{ Pattern: any }>;
 };
 
 export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
@@ -251,7 +251,7 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
     (cfnEventSourceMapping as aws_lambda.CfnEventSourceMapping).addPropertyOverride(
       'FilterCriteria',
       {
-        Filters: props.filters.map((filter) => JSON.stringify(filter))
+        Filters: props.filters.map(({ Pattern: pattern }) => ({ Pattern: JSON.stringify(pattern) }))
       }
     );
   };
