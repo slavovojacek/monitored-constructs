@@ -27,40 +27,41 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
 
   /**
    * Configure alarm actions for all existing monitors.
-   * 
+   *
    * @param actions Array<{@link aws_cloudwatch.IAlarmAction}>
    */
   configureAlarmActions = (...actions: Array<aws_cloudwatch.IAlarmAction>) => {
     for (const alarm of this.alarms) {
-      alarm.addAlarmAction(...actions)
+      alarm.addAlarmAction(...actions);
     }
-  }
+  };
 
   /**
    * Configure ok actions for all existing monitors.
-   * 
+   *
    * @param actions Array<{@link aws_cloudwatch.IAlarmAction}>
    */
   configureOkActions = (...actions: Array<aws_cloudwatch.IAlarmAction>) => {
     for (const alarm of this.alarms) {
-      alarm.addOkAction(...actions)
+      alarm.addOkAction(...actions);
     }
-  }
+  };
 
   /**
    * Configure insufficient data actions for all existing monitors.
-   * 
+   *
    * @param actions Array<{@link aws_cloudwatch.IAlarmAction}>
    */
   configureInsufficientDataActions = (...actions: Array<aws_cloudwatch.IAlarmAction>) => {
     for (const alarm of this.alarms) {
-      alarm.addInsufficientDataAction(...actions)
+      alarm.addInsufficientDataAction(...actions);
     }
-  }
+  };
 
   /**
    * Configures an alarm using the errors metric.
-   * 
+   * The default metric period is 1 minute and default alarm evaluation periods is 3.
+   *
    * @param errorsPerMinute number @default 0
    * @param metricOptions {@link aws_cloudwatch.MetricOptions}
    * @param createAlarmOptions {@link aws_cloudwatch.CreateAlarmOptions}
@@ -88,7 +89,8 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
 
   /**
    * Configures an alarm using the throttles metric.
-   * 
+   * The default metric period is 1 minute and default alarm evaluation periods is 3.
+   *
    * @param throttlesPerMinute number @default 0
    * @param metricOptions {@link aws_cloudwatch.MetricOptions}
    * @param createAlarmOptions {@link aws_cloudwatch.CreateAlarmOptions}
@@ -116,7 +118,8 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
 
   /**
    * Configures an alarm using the duration metric (p99 % of configured timeout).
-   * 
+   * The default metric period is 1 minute and default alarm evaluation periods is 3.
+   *
    * @param timeoutPercent number @default 80
    * @param metricOptions {@link aws_cloudwatch.MetricOptions}
    * @param createAlarmOptions {@link aws_cloudwatch.CreateAlarmOptions}
@@ -149,8 +152,37 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
   };
 
   /**
+   * Configures an alarm using the invocations metric.
+   * The default metric period is 1 minute and default alarm evaluation periods is 3.
+   *
+   * @param invocationsPerMinute number
+   * @param metricOptions {@link aws_cloudwatch.MetricOptions}
+   * @param createAlarmOptions {@link aws_cloudwatch.CreateAlarmOptions}
+   * @returns alarm {@link aws_cloudwatch.Alarm}
+   */
+  monitorInvocations = (
+    invocationsPerMinute: number,
+    metricOptions?: aws_cloudwatch.MetricOptions,
+    createAlarmOptions?: aws_cloudwatch.CreateAlarmOptions
+  ): aws_cloudwatch.Alarm => {
+    const metric = this.metricInvocations().with({
+      statistic: 'Sum',
+      period: Duration.minutes(1),
+      ...metricOptions
+    });
+
+    return this.addAlarm('InvocationsAlarm', {
+      alarmDescription: `Over ${invocationsPerMinute} invocations per minute`,
+      metric,
+      threshold: invocationsPerMinute,
+      evaluationPeriods: 3,
+      ...createAlarmOptions
+    });
+  };
+
+  /**
    * Creates the alarm resource and adds it to the set of alarms configured for this construct.
-   * 
+   *
    * @param id string
    * @param props {@link aws_cloudwatch.AlarmProps}
    * @returns alarm {@link aws_cloudwatch.Alarm}
