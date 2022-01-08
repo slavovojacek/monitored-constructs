@@ -7,6 +7,13 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+export type AddEventSourceMappingWithFilterProps = Omit<
+  aws_lambda.EventSourceMappingProps,
+  'target'
+> & {
+  filters: Array<Record<string, unknown>>;
+};
+
 export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
   /**
    * A set of configured alarms for this construct.
@@ -221,6 +228,32 @@ export class NodejsFunction extends aws_lambda_nodejs.NodejsFunction {
     }
 
     return new aws_events_targets.LambdaFunction(this, props);
+  };
+
+  /**
+   * Adds a new event source mapping for the lambda and applies specified filters as `FilterCriteria`.
+   * This is a temporary workaround until filtering on streams is supported natively via CDK.
+   *
+   * @param id string
+   * @param props {@link AddEventSourceMappingWithFilterProps}
+   */
+  addEventSourceMappingWithFilter = (id: string, props: AddEventSourceMappingWithFilterProps) => {
+    const eventSourceMapping = new aws_lambda.EventSourceMapping(this, id, {
+      target: this,
+      ...props
+    });
+
+    // Filter criteria for DDB streams not supported yet, use an escape hatch (https://docs.aws.amazon.com/cdk/v2/guide/cfn_layer.html) to get the L1 reference and apply changes
+    const {
+      node: { defaultChild: cfnEventSourceMapping }
+    } = eventSourceMapping;
+
+    (cfnEventSourceMapping as aws_lambda.CfnEventSourceMapping).addPropertyOverride(
+      'FilterCriteria',
+      {
+        Filters: props.filters.map((filter) => JSON.stringify(filter))
+      }
+    );
   };
 
   /**
